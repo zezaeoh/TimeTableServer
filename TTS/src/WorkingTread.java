@@ -16,9 +16,12 @@ public class WorkingTread extends Thread{
 	}
 	@Override
 	public void run() {
+		System.out.println("Access: " + client.getInetAddress());
 		pw.println("Server: Responce test okay!");
+		pw.flush();
 		try {
 			client.close();
+			System.out.println("Client closed");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
