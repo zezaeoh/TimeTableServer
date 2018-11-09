@@ -12,7 +12,7 @@ public class ClientMain {
 		try {
 			System.out.println("Test to connect server...");
 			s = new Socket(ipAdress, 9001);
-			br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+			br = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF8"));
 			System.out.println(br.readLine());
 			System.out.println("Server connection closed");
 		} catch (Exception e) {

@@ -9,7 +9,7 @@ public class WorkingTread extends Thread{
 	public WorkingTread(Socket s) {
 		client = s;
 		try {
-			pw = new PrintWriter(new OutputStreamWriter(client.getOutputStream()));
+			pw = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), "UTF8"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
