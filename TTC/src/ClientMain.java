@@ -15,6 +15,7 @@ public class ClientMain {
 			br = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF8"));
 			System.out.println(br.readLine());
 			System.out.println("Server connection closed");
+			System.out.println("hello");
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
