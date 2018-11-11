@@ -14,8 +14,7 @@ public class ServerMain {
 			while (true) {
 				System.out.println("wait for client...");
 				s = server.accept();
-				WorkingTread wt = new WorkingTread(s, users);
-				wt.run();
+				new WorkingTread(s, users).start();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -38,6 +38,8 @@ public class ClientMain {
 			sc.close();
 			try {
 				s.close();
+				pw.close();
+				br.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
