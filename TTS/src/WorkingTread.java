@@ -32,22 +32,27 @@ public class WorkingTread extends Thread{
 		System.out.println("Access: " + client.getInetAddress());
 		printMain();
 		while(true) {
-			pw.println(">>");
+			pw.println(">> ");
 			pw.flush();
 			try {
 				s = br.readLine();
+				System.out.println("enterd msg: " + s);
 				if(s.equals("종료") || s.equals("접속종료"))
 					break;
 				else if(s.equals("동시접속자") || s.equals("동접자"))
 					checkConcurrentUsers();
-				else
+				else {
 					pw.println("이해하지 못하는 명령어 입니다!");
+					pw.flush();
+				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				break;
 			}
 		}
 		try {
 			client.close();
+			br.close();
+			pw.close();
 			System.out.println("Client closed");
 		} catch (IOException e) {
 			e.printStackTrace();

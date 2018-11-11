@@ -27,6 +27,7 @@ public class ClientMain {
 				msg = sc.nextLine();
 				if(msg != null) {
 					pw.println(msg);
+					pw.flush();
 					if(msg.equals("종료") || msg.equals("접속종료"))
 						break;
 				}
@@ -56,8 +57,12 @@ class ReadThread extends Thread {
 		try {
 			String input = null;
 			while(true) {
-				if((input = br.readLine()) != null)
-					System.out.println(input);
+				if((input = br.readLine()) != null) {
+					if(input.equals(">> "))
+						System.out.print(input);
+					else
+						System.out.println(input);
+				}
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
