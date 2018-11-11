@@ -36,7 +36,9 @@ public class WorkingTread extends Thread{
 			pw.flush();
 			try {
 				s = br.readLine();
-				System.out.println("enterd msg: " + s);
+				System.out.println("Client: " + client.getInetAddress() + " enterd msg: " + s);
+				if(s == null || s.isEmpty())
+					continue;
 				if(s.equals("종료") || s.equals("접속종료"))
 					break;
 				else if(s.equals("동시접속자") || s.equals("동접자"))
@@ -45,15 +47,18 @@ public class WorkingTread extends Thread{
 					pw.println("이해하지 못하는 명령어 입니다!");
 					pw.flush();
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				break;
 			}
 		}
 		try {
+			synchronized (users) {
+				users.remove(client);
+			}
 			client.close();
 			br.close();
 			pw.close();
-			System.out.println("Client closed");
+			System.out.println("Client: " + client.getInetAddress() + " closed");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
