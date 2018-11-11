@@ -36,12 +36,12 @@ public class WorkingTread extends Thread{
 			pw.flush();
 			try {
 				s = br.readLine();
-				if(s.equals("Á¾·á") || s.equals("Á¢¼ÓÁ¾·á"))
+				if(s.equals("ì¢…ë£Œ") || s.equals("ì ‘ì†ì¢…ë£Œ"))
 					break;
-				else if(s.equals("µ¿½ÃÁ¢¼ÓÀÚ") || s.equals("µ¿Á¢ÀÚ"))
+				else if(s.equals("ë™ì‹œì ‘ì†ì") || s.equals("ë™ì ‘ì"))
 					checkConcurrentUsers();
 				else
-					pw.println("ÀÌÇØÇÏÁö ¸øÇÏ´Â ¸í·É¾î ÀÔ´Ï´Ù!");
+					pw.println("ì´í•´í•˜ì§€ ëª»í•˜ëŠ” ëª…ë ¹ì–´ ì…ë‹ˆë‹¤!");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -58,7 +58,7 @@ public class WorkingTread extends Thread{
 		int n;
 		synchronized (users) {
 			n = users.size();
-			pw.println("--ÇöÀç Ãªº¿ Á¢¼ÓÀÚ ¼ö: " + n + "¸í");
+			pw.println("--í˜„ì¬ ì±—ë´‡ ì ‘ì†ì ìˆ˜: " + n + "ëª…");
 			for(Socket s: users)
 				pw.println("----ip: " + s.getInetAddress());
 			pw.flush();
@@ -66,8 +66,8 @@ public class WorkingTread extends Thread{
 	}
 
 	private void printMain() {
-		pw.println("--¿µÈ­°ü »ó¿µ½Ã°£Ç¥ Á¦°ø Ãªº¿¿¡ Á¢¼ÓÇÏ½Å°É È¯¿µÇÕ´Ï´Ù!");
-		pw.println("----¸í·É¾î¸¦ ÀÔ·ÂÇØ ÁÖ¼¼¿ä.");
+		pw.println("--ì˜í™”ê´€ ìƒì˜ì‹œê°„í‘œ ì œê³µ ì±—ë´‡ì— ì ‘ì†í•˜ì‹ ê±¸ í™˜ì˜í•©ë‹ˆë‹¤!");
+		pw.println("----ëª…ë ¹ì–´ë¥¼ ì…ë ¥í•´ ì£¼ì„¸ìš”.");
 		pw.flush();
 	}
 }
