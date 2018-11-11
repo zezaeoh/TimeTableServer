@@ -67,7 +67,6 @@ class ReadThread extends Thread {
 				}
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
 		} finally {
 			try {
 				s.close();
