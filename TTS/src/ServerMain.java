@@ -7,7 +7,7 @@ public class ServerMain {
 	public static void main(String[] args) {
 		ServerSocket server = null;
 		Socket s = null;
-		LinkedList<Socket> users = null;
+		LinkedList<ClientInfo> users = null;
 		try {
 			server = new ServerSocket(9001);
 			users = new LinkedList<>();
@@ -24,9 +24,9 @@ public class ServerMain {
 					server.close();
 				if (users != null) {
 					synchronized (users) {
-						for (Socket ss : users) {
-							if (ss != null)
-								ss.close();
+						for (ClientInfo ss : users) {
+							if (ss.getCs() != null)
+								ss.getCs().close();
 						}
 					}
 				}

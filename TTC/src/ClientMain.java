@@ -17,10 +17,18 @@ public class ClientMain {
 		String msg = null;
 		Scanner sc = new Scanner(System.in);
 		try {
-			System.out.println("Test to connect server...");
+			System.out.print("서버에 접속할 아이디를 입력하세요: ");
+			String id = sc.nextLine();
+			System.out.println("서버에 연결 중...");
+			
 			s = new Socket(ipAdress, 9001);
 			br = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF8"));
 			pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF8"));
+			pw.println(id);
+			pw.flush();
+			
+			System.out.println("성공적으로 연결되었습니다!");
+			
 			ReadThread rt = new ReadThread(s, br);
 			rt.start();
 			while(true) {

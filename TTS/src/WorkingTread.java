@@ -7,17 +7,17 @@ import java.net.Socket;
 import java.util.LinkedList;
 
 public class WorkingTread extends Thread{
-	private Socket client;
+	private ClientInfo client;
 	private PrintWriter pw;
 	private BufferedReader br;
-	private LinkedList<Socket> users;
+	private LinkedList<ClientInfo> users;
 	
-	public WorkingTread(Socket s, LinkedList<Socket> users) {
-		client = s;
+	public WorkingTread(Socket s, LinkedList<ClientInfo> users) {
 		this.users = users;
 		try {
-			pw = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), "UTF8"));
-			br = new BufferedReader(new InputStreamReader(client.getInputStream(),"UTF8"));
+			pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF8"));
+			br = new BufferedReader(new InputStreamReader(s.getInputStream(),"UTF8"));
+			client = new ClientInfo(s, br.readLine());
 			synchronized (users) {
 				users.add(client);
 			}
@@ -29,14 +29,14 @@ public class WorkingTread extends Thread{
 	@Override
 	public void run() {
 		String s = null;
-		System.out.println("Access: " + client.getInetAddress());
+		System.out.println("Access: " + client.getCs().getInetAddress() + "@" + client.getId());
 		printMain();
 		while(true) {
 			pw.println(">> ");
 			pw.flush();
 			try {
 				s = br.readLine();
-				System.out.println("Client: " + client.getInetAddress() + " enterd msg: " + s);
+				System.out.println("Client: " +  client.getId()  + " enterd msg: " + s);
 				if(s == null || s.isEmpty())
 					continue;
 				if(s.equals("종료") || s.equals("접속종료"))
@@ -55,10 +55,10 @@ public class WorkingTread extends Thread{
 			synchronized (users) {
 				users.remove(client);
 			}
-			client.close();
+			client.getCs().close();
 			br.close();
 			pw.close();
-			System.out.println("Client: " + client.getInetAddress() + " closed");
+			System.out.println("Client: " + client.getCs().getInetAddress() + "@" + client.getId() + " closed");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -69,8 +69,8 @@ public class WorkingTread extends Thread{
 		synchronized (users) {
 			n = users.size();
 			pw.println("--현재 챗봇 접속자 수: " + n + "명");
-			for(Socket s: users)
-				pw.println("----ip: " + s.getInetAddress());
+			for(ClientInfo s: users)
+				pw.println("----ip@id: " + s.getCs().getInetAddress() + "@" + s.getId());
 			pw.flush();
 		}
 	}
