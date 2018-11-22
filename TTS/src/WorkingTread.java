@@ -46,8 +46,11 @@ public class WorkingTread extends Thread {
 				else if (s.equals("동시접속자") || s.equals("동접자"))
 					checkConcurrentUsers();
 				else {
-					if (!processMsg()) {
+					if (!processMsg(s)) {
 						pw.println("이해하지 못하는 명령어 입니다!");
+						pw.flush();
+					}else {
+						pw.println("The command is accepted.");
 						pw.flush();
 					}
 				}
@@ -68,8 +71,13 @@ public class WorkingTread extends Thread {
 		}
 	}
 
-	private boolean processMsg() {
-		// TODO Auto-generated method stub
+	private boolean processMsg(String msg) {
+		String[] splitedMgs = msg.split("\\s+");
+		for (int i = 0; i < splitedMgs.length; i++) {
+			System.out.println("\tLOG: proceesMGS() splite message.");
+			System.out.println("\tLOG: [" + i + "] = " + splitedMgs[i] + ".");
+		}
+		
 		return false;
 	}
 
