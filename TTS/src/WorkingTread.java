@@ -4,11 +4,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import informations.ClientInfo;
@@ -20,13 +16,11 @@ public class WorkingTread extends Thread {
 	private BufferedReader br;
 	private LinkedList<ClientInfo> users;
 	private DBManager db;
-	private CommandSet cs;
 	private HashMap<String, LinkedList<String>> cm;
 	
 	public WorkingTread(Socket s, LinkedList<ClientInfo> users, DBManager db, CommandSet cs) {
 		this.users = users;
 		this.db = db;
-		this.cs = cs;
 		cm = cs.getCommandMap();
 		try {
 			pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF8"));
@@ -61,13 +55,6 @@ public class WorkingTread extends Thread {
 					if (!processMsg(s)) {//checking the command.
 						pw.println("이해하지 못하는 명령어 입니다!");
 						pw.flush();
-					}else {
-						pw.println("The command is accepted: 상영시간표");
-						pw.flush();
-						
-//						if() {//checking the theater.
-//							
-//						}
 					}
 				}
 			} catch (Exception e) {

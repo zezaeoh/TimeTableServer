@@ -4,12 +4,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.nio.Buffer;
 import java.util.Scanner;
 
 public class ClientMain {
-//	static final String ipAdress = "54.180.98.17";
-	static final String ipAdress = "127.0.0.1";
+	static final String ipAdress = "54.180.98.17";
+//	static final String ipAdress = "127.0.0.1";
+	
 	public static void main(String[] args) {
 		Socket s = null;
 		BufferedReader br = null;

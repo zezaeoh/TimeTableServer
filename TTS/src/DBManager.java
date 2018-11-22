@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.List;
 
 import informations.BranchInfo;
 import informations.BranchInfoRoot;
@@ -77,6 +78,11 @@ public class DBManager {
 			if(bi.getBrName().equals(msg))
 				return bi;
 		}
+		return null;
+	}
+	
+	public List<String> getBranchTimeTable(){
+		
 		return null;
 	}
 }

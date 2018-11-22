@@ -1,11 +1,8 @@
 package informations;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
-
-import javax.activation.CommandMap;
 
 public class CommandSet {
 	private LinkedList<String> screeningScheduleLeaf;
