@@ -16,6 +16,4 @@ public class BranchInfo {
 	public int getBrId() {
 		return brId;
 	}
-	
-	
 }
