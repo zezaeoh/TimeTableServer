@@ -5,6 +5,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +22,7 @@ public class WorkingTread extends Thread {
 	private DBManager db;
 	private CommandSet cs;
 	private HashMap<String,ArrayList<String>>cm;
+	private ArrayList<String> splitedMgs = new ArrayList<String>();
 	public WorkingTread(Socket s, LinkedList<ClientInfo> users, DBManager db, CommandSet cs) {
 		this.users = users;
 		this.db = db;
@@ -56,12 +58,16 @@ public class WorkingTread extends Thread {
 				else if (s.equals("동시접속자") || s.equals("동접자"))
 					checkConcurrentUsers();
 				else {
-					if (!processMsg(s)) {
+					if (!processMsg(s, splitedMgs)) {//checking the command.
 						pw.println("이해하지 못하는 명령어 입니다!");
 						pw.flush();
 					}else {
-						pw.println("The command is accepted.");
+						pw.println("The command is accepted: 상영시간표");
 						pw.flush();
+						
+						if() {//checking the theater.
+							
+						}
 					}
 				}
 			} catch (Exception e) {
@@ -81,21 +87,27 @@ public class WorkingTread extends Thread {
 		}
 	}
 
-	private boolean processMsg(String msg) {
-		Iterator<ArrayList<String>> iterator;
-		Collection<ArrayList<String>>leaf = cm.values();
-		iterator = leaf.iterator();
-		String[] splitedMgs = msg.split("\\s+");
-		for (int i = 0; i < splitedMgs.length; i++) {
-			System.out.println("\tLOG: proceesMGS() splite message.");
-			System.out.println("\tLOG: [" + i + "] = " + splitedMgs[i] + ".");
+	private boolean processMsg(String msg, ArrayList<String> splitedMgs) {
+		printLog("test");
+		ArrayList<String> screeningScheduleLeaf = cm.get("상영시간표");
+		String[] tmpMsg = msg.split("\\s+");
+		for(String s:tmpMsg) {
+			splitedMgs.add(s);
 		}
 		
-		for(String s :splitedMgs) {
-			while(iterator.hasNext()) {
-				
-			}
-			
+		for (String s:splitedMgs) {
+			printLog("proceesMGS() splite message.");
+			printLog("The splite messages: "+s);
+		}
+		
+		for(String sMgs :splitedMgs) {
+			for(String ssleaf:screeningScheduleLeaf) {
+				if(sMgs.equals(ssleaf)) {
+					printLog("Matched: "+sMgs +"="+ssleaf);
+					splitedMgs.remove(sMgs);
+					return true;
+				}
+			}			
 		}
 		
 		return false;
@@ -116,5 +128,8 @@ public class WorkingTread extends Thread {
 		pw.println("--영화관 상영시간표 제공 챗봇에 접속하신걸 환영합니다!");
 		pw.println("----명령어를 입력해 주세요.");
 		pw.flush();
+	}
+	private void printLog(String msg) {
+		System.out.println("\\tLOG: "+msg);
 	}
 }
