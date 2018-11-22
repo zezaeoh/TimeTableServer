@@ -4,9 +4,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import informations.ClientInfo;
+import informations.CommandSet;
 
 public class WorkingTread extends Thread {
 	private ClientInfo client;
@@ -14,10 +19,13 @@ public class WorkingTread extends Thread {
 	private BufferedReader br;
 	private LinkedList<ClientInfo> users;
 	private DBManager db;
-
-	public WorkingTread(Socket s, LinkedList<ClientInfo> users, DBManager db) {
+	private CommandSet cs;
+	private HashMap<String,ArrayList<String>>cm;
+	public WorkingTread(Socket s, LinkedList<ClientInfo> users, DBManager db, CommandSet cs) {
 		this.users = users;
 		this.db = db;
+		this.cs = cs;
+		cm = cs.getCommandMap();
 		try {
 			pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF8"));
 			br = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF8"));
@@ -67,7 +75,6 @@ public class WorkingTread extends Thread {
 			client.getCs().close();
 			br.close();
 			pw.close();
-			db.instanceClose();
 			System.out.println("Client: " + client.getCs().getInetAddress() + "@" + client.getId() + " closed");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -75,10 +82,20 @@ public class WorkingTread extends Thread {
 	}
 
 	private boolean processMsg(String msg) {
+		Iterator<ArrayList<String>> iterator;
+		Collection<ArrayList<String>>leaf = cm.values();
+		iterator = leaf.iterator();
 		String[] splitedMgs = msg.split("\\s+");
 		for (int i = 0; i < splitedMgs.length; i++) {
 			System.out.println("\tLOG: proceesMGS() splite message.");
 			System.out.println("\tLOG: [" + i + "] = " + splitedMgs[i] + ".");
+		}
+		
+		for(String s :splitedMgs) {
+			while(iterator.hasNext()) {
+				
+			}
+			
 		}
 		
 		return false;

@@ -4,6 +4,7 @@ import java.net.Socket;
 import java.util.LinkedList;
 
 import informations.ClientInfo;
+import informations.CommandSet;
 
 public class ServerMain {
 	public static void main(String[] args) {
@@ -16,7 +17,7 @@ public class ServerMain {
 			while (true) {
 				System.out.println("wait for client...");
 				s = server.accept();
-				new WorkingTread(s, users, new DBManager()).start();
+				new WorkingTread(s, users, new DBManager(), new CommandSet()).start();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
