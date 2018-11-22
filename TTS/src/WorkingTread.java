@@ -21,8 +21,8 @@ public class WorkingTread extends Thread {
 	private LinkedList<ClientInfo> users;
 	private DBManager db;
 	private CommandSet cs;
-	private HashMap<String,ArrayList<String>>cm;
-	private ArrayList<String> splitedMgs = new ArrayList<String>();
+	private HashMap<String, LinkedList<String>> cm;
+	
 	public WorkingTread(Socket s, LinkedList<ClientInfo> users, DBManager db, CommandSet cs) {
 		this.users = users;
 		this.db = db;
@@ -58,19 +58,20 @@ public class WorkingTread extends Thread {
 				else if (s.equals("동시접속자") || s.equals("동접자"))
 					checkConcurrentUsers();
 				else {
-					if (!processMsg(s, splitedMgs)) {//checking the command.
+					if (!processMsg(s)) {//checking the command.
 						pw.println("이해하지 못하는 명령어 입니다!");
 						pw.flush();
 					}else {
 						pw.println("The command is accepted: 상영시간표");
 						pw.flush();
 						
-						if() {//checking the theater.
-							
-						}
+//						if() {//checking the theater.
+//							
+//						}
 					}
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				break;
 			}
 		}
@@ -87,18 +88,19 @@ public class WorkingTread extends Thread {
 		}
 	}
 
-	private boolean processMsg(String msg, ArrayList<String> splitedMgs) {
+	private boolean processMsg(String msg) {
 		printLog("test");
-		ArrayList<String> screeningScheduleLeaf = cm.get("상영시간표");
-		String[] tmpMsg = msg.split("\\s+");
-		for(String s:tmpMsg) {
+		LinkedList<String> screeningScheduleLeaf = cm.get("상영시간표");
+		LinkedList<String> splitedMgs = new LinkedList<>();
+		
+		for(String s: msg.split("\\s+")) {
 			splitedMgs.add(s);
 		}
-		
-		for (String s:splitedMgs) {
-			printLog("proceesMGS() splite message.");
-			printLog("The splite messages: "+s);
-		}
+		printLog(splitedMgs.toString());
+//		for (String s:splitedMgs) {
+//			printLog("proceesMGS() splite message.");
+//			printLog("The splite messages: "+s);
+//		}
 		
 		for(String sMgs :splitedMgs) {
 			for(String ssleaf:screeningScheduleLeaf) {
