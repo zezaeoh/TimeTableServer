@@ -15,8 +15,9 @@ public class DBManager {
 	public DBManager() {
 		try {
 			Class.forName(JDBC_DRIVER);
-			if(conn == null)
+			if(conn == null) {
 				conn = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
+			}
 			state = conn.createStatement();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -27,6 +28,15 @@ public class DBManager {
 		if(conn != null)
 			try {
 				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+	}
+	
+	public void instanceClose() {
+		if(state != null)
+			try {
+				state.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}

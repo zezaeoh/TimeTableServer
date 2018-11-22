@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.LinkedList;
 
+import informations.ClientInfo;
+
 public class WorkingTread extends Thread {
 	private ClientInfo client;
 	private PrintWriter pw;
@@ -65,6 +67,7 @@ public class WorkingTread extends Thread {
 			client.getCs().close();
 			br.close();
 			pw.close();
+			db.instanceClose();
 			System.out.println("Client: " + client.getCs().getInetAddress() + "@" + client.getId() + " closed");
 		} catch (IOException e) {
 			e.printStackTrace();
