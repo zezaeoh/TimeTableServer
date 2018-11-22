@@ -11,9 +11,11 @@ public class WorkingTread extends Thread {
 	private PrintWriter pw;
 	private BufferedReader br;
 	private LinkedList<ClientInfo> users;
+	private DBManager db;
 
-	public WorkingTread(Socket s, LinkedList<ClientInfo> users) {
+	public WorkingTread(Socket s, LinkedList<ClientInfo> users, DBManager db) {
 		this.users = users;
+		this.db = db;
 		try {
 			pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF8"));
 			br = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF8"));

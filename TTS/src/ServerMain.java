@@ -14,7 +14,7 @@ public class ServerMain {
 			while (true) {
 				System.out.println("wait for client...");
 				s = server.accept();
-				new WorkingTread(s, users).start();
+				new WorkingTread(s, users, new DBManager()).start();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -30,6 +30,7 @@ public class ServerMain {
 						}
 					}
 				}
+				DBManager.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
