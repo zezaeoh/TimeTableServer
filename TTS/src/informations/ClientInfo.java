@@ -1,3 +1,5 @@
+package informations;
+
 import java.net.Socket;
 
 public class ClientInfo {

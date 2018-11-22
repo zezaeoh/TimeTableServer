@@ -3,6 +3,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
 
+import informations.ClientInfo;
+
 public class ServerMain {
 	public static void main(String[] args) {
 		ServerSocket server = null;
