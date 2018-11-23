@@ -87,11 +87,11 @@ public class DBManager {
 	public List<BranchInfo> getBranchNames(String msg){ // 특정 지역에 대한 String이 들어왔을 때 해당 지역에 해당하는 모든 branchInfo를 List형태로 리턴한다.
 		LinkedList<BranchInfo> rl = new LinkedList<>();
 		
-		for(String s: branchInfos.keySet())
-			for(BranchInfo bi: branchInfos.get(s).getList())
+		for(String s: branchInfos.keySet()) 
+			for(BranchInfo bi: branchInfos.get(s).getList()) 
 				if(bi.getBrName().equals(msg))
 					rl.add(bi);
-		
+			
 		return rl;			
 	}
 	

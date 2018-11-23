@@ -8,9 +8,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import informations.BranchInfo;
+import informations.BranchInfoRoot;
 import informations.ClientInfo;
 import informations.CommandSet;
 import informations.QueryInfo;
+import informations.TheaterSet;
 
 public class WorkingTread extends Thread {
 	private ClientInfo client;
@@ -19,11 +22,17 @@ public class WorkingTread extends Thread {
 	private LinkedList<ClientInfo> users;
 	private DBManager db;
 	private HashMap<String, LinkedList<String>> cm;
-
-	public WorkingTread(Socket s, LinkedList<ClientInfo> users, DBManager db, CommandSet cs) {
+	private HashMap<Integer, LinkedList<String>> tm;
+	private String[][] thId;
+	
+	
+	
+	public WorkingTread(Socket s, LinkedList<ClientInfo> users, DBManager db, CommandSet cs, TheaterSet ts) {
 		this.users = users;
 		this.db = db;
 		cm = cs.getCommandMap();
+		tm = ts.getTheaterMap();
+		thId = ts.getThIDList();
 		try {
 			pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF8"));
 			br = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF8"));
@@ -81,6 +90,9 @@ public class WorkingTread extends Thread {
 	private boolean processMsg(String msg) {
 		printLog("test");
 		final String command1 = "상영시간표";
+		String thName = null;
+		BranchInfo bi = null;
+		List<BranchInfo> biList =null;
 		
 		LinkedList<String> screeningScheduleLeaf = cm.get(command1);
 		LinkedList<String> splitedMsg = new LinkedList<>();
@@ -89,7 +101,7 @@ public class WorkingTread extends Thread {
 		for (String s : msg.split("\\s+"))
 			splitedMsg.add(s);
 		printLog(splitedMsg.toString());
-		
+		//command check
 		outerloop:
 		for (String sMsg : splitedMsg)
 			for (String ssleaf : screeningScheduleLeaf)
@@ -101,6 +113,47 @@ public class WorkingTread extends Thread {
 				}
 		if(!qi.haveCommand()) // 위 loop를 지나서도 명령어를 매치하지 못했으면 false를 리턴
 			return false;
+		printLog(splitedMsg.toString());
+		//theater check
+		outerloop:
+		for (String sMsg : splitedMsg)
+			for (String[] id: thId)
+				for(String thIDString:tm.get(Integer.parseInt(id[0])))
+					if(sMsg.equals(thIDString)) {						
+						printLog("Matched: " + sMsg + "=" + thIDString);
+						thName = id[1];
+						splitedMsg.remove(sMsg);
+						qi.setThId(Integer.parseInt(id[0]));
+						break outerloop;
+					}
+
+		printLog(splitedMsg.toString());
+
+		//branch check
+		outerloop:
+		for (String sMsg : splitedMsg)
+			if(qi.haveThId()) {
+				if(qi.getThId()==100)sMsg = "CGV"+sMsg;
+				printLog(sMsg);
+				bi = db.getBranchName(thName, sMsg);
+				if(bi!=null) {
+					qi.addThBrId(bi);
+					break outerloop;
+				}else {
+					printLog("The branch is not correct.");
+					return false;
+				}
+			}else {
+				biList = db.getBranchNames(sMsg);
+				biList.addAll(db.getBranchNames("CGV"+sMsg));
+				if(biList != null) {
+					qi.addAllThBrIds(biList);
+					break outerloop;
+				}
+			}
+		printLog("QueryInfo: "+qi.getCommand()+" "+Integer.toString(qi.getThId()) +" "+qi.getThBrIds());
+		
+		
 		
 		/*
 		 *  조건 매칭을 계속 해나가면서 위의 과정을 반복
@@ -147,6 +200,6 @@ public class WorkingTread extends Thread {
 	}
 
 	private void printLog(String msg) {
-		System.out.println("\\tLOG: " + msg);
+		System.out.println("\tLOG: " + msg);
 	}
 }
