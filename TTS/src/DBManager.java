@@ -1,4 +1,3 @@
-import java.awt.Robot;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -86,17 +85,28 @@ public class DBManager {
 	
 	public List<BranchInfo> getBranchNames(String msg){ // 특정 지역에 대한 String이 들어왔을 때 해당 지역에 해당하는 모든 branchInfo를 List형태로 리턴한다.
 		LinkedList<BranchInfo> rl = new LinkedList<>();
-		
+
 		for(String s: branchInfos.keySet())
 			for(BranchInfo bi: branchInfos.get(s).getList())
-				if(bi.getBrName().equals(msg))
+				if(bi.getBrName().contains(msg))
 					rl.add(bi);
 		
 		return rl;			
 	}
 	
 	public List<String> getQueryResult(QueryInfo qi){ // 쿼리 info를 받아서 해당되는 쿼리를 수행 한 후 결과를 리턴한다. 해석할 수 없는경우 null을 리턴한다.
+		if(qi.getCommand().equals("상영시간표")) {
+			
+		}
 		return null;
 	}
 	
+	private ResultSet getBranchTimeTable(QueryInfo qi) {
+		String sql = 
+				"select mv_name, mv_time" +
+				"from th_mv_times" +
+				"where th_id = %s && br_id = %s";
+				
+		return null;
+	}
 }
