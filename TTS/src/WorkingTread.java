@@ -71,6 +71,7 @@ public class WorkingTread extends Thread {
 			client.getCs().close();
 			br.close();
 			pw.close();
+			db.instanceClose();
 			System.out.println("Client: " + client.getCs().getInetAddress() + "@" + client.getId() + " closed");
 		} catch (IOException e) {
 			e.printStackTrace();
