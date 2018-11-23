@@ -4,12 +4,15 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import informations.BranchInfo;
-import informations.BranchInfoRoot;
 import informations.ClientInfo;
 import informations.CommandSet;
 import informations.QueryInfo;
@@ -88,16 +91,17 @@ public class WorkingTread extends Thread {
 	}
 
 	private boolean processMsg(String msg) {
-		printLog("test");
+		printLog("processMgs()");
 		final String command1 = "상영시간표";
 		String thName = null;
+		String time = null;
 		BranchInfo bi = null;
-		List<BranchInfo> biList =null;
-		
+		List<BranchInfo> biList =new LinkedList<>();
 		LinkedList<String> screeningScheduleLeaf = cm.get(command1);
 		LinkedList<String> splitedMsg = new LinkedList<>();
 		QueryInfo qi = new QueryInfo(); // 밑으로 내려가면서 조건을 체크하면서 점차 이 인스턴스를 채울 것
-
+		
+		//command split
 		for (String s : msg.split("\\s+"))
 			splitedMsg.add(s);
 		printLog(splitedMsg.toString());
@@ -106,28 +110,27 @@ public class WorkingTread extends Thread {
 		for (String sMsg : splitedMsg)
 			for (String ssleaf : screeningScheduleLeaf)
 				if (sMsg.equals(ssleaf)) {
-					printLog("Matched: " + sMsg + "=" + ssleaf);
+					printLog("Command is matched: " + sMsg + "=" + ssleaf);
 					splitedMsg.remove(sMsg);
 					qi.setCommand(command1); // 명령어가 매치되었으므로 qi에 입력
 					break outerloop;
 				}
 		if(!qi.haveCommand()) // 위 loop를 지나서도 명령어를 매치하지 못했으면 false를 리턴
 			return false;
-		printLog(splitedMsg.toString());
+		printLog("Command is checked.."+splitedMsg.toString());
 		//theater check
 		outerloop:
 		for (String sMsg : splitedMsg)
 			for (String[] id: thId)
 				for(String thIDString:tm.get(Integer.parseInt(id[0])))
 					if(sMsg.equals(thIDString)) {						
-						printLog("Matched: " + sMsg + "=" + thIDString);
+						printLog("theater is matched: " + sMsg + "=" + thIDString);
 						thName = id[1];
 						splitedMsg.remove(sMsg);
 						qi.setThId(Integer.parseInt(id[0]));
 						break outerloop;
 					}
-
-		printLog(splitedMsg.toString());
+		printLog("theater is checked.."+splitedMsg.toString());
 
 		//branch check
 		outerloop:
@@ -139,21 +142,25 @@ public class WorkingTread extends Thread {
 				if(bi!=null) {
 					qi.addThBrId(bi);
 					break outerloop;
-				}else {
-					printLog("The branch is not correct.");
-					return false;
 				}
 			}else {
-				biList = db.getBranchNames(sMsg);
-				biList.addAll(db.getBranchNames("CGV"+sMsg));
-				if(biList != null) {
-					qi.addAllThBrIds(biList);
-					break outerloop;
-				}
+				biList.addAll(db.getBranchNames(sMsg));
+				if(biList.size() != 0) 
+					if(Pattern.matches("^[0-9 시]*$", sMsg)) {
+						DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd ");
+						Date date = new Date();
+						time = dateFormat.format(date)+sMsg.replaceAll("[^0-9]", "")+":%";
+						printLog("Time.."+time);
+					}
 			}
-		printLog("QueryInfo: "+qi.getCommand()+" "+Integer.toString(qi.getThId()) +" "+qi.getThBrIds());
+		qi.addAllThBrIds(biList);
+		qi.setMvTime(time);
 		
-		
+		printLog(biList);
+		printLog("QueryInfo: "+qi.getCommand()+" "
+							  +Integer.toString(qi.getThId()) +" "
+							  +qi.getThBrIds()+ " "
+							  +qi.getMvTime());
 		
 		/*
 		 *  조건 매칭을 계속 해나가면서 위의 과정을 반복
@@ -168,6 +175,15 @@ public class WorkingTread extends Thread {
 		 *          지역정보가 포함된 지점의 정보들을 모두 확인하여 BranchInfo의 리스트를 리턴한다.
 		 *          지점이 존해하지 않는 경우 empty한 리스트를 리턴한다.
 		 */
+		
+		/*
+		 * Test command
+		 * 수원 롯시 시간표 알려줘
+		 * 수원 시간표 알려줘
+		 * 수원 13시 시간표 알려줘
+		 */
+		
+		
 		
 		List<String> qr = db.getQueryResult(qi); // 모든 조건이 체크된 qi를 이용하여 쿼리를 날림
 		if(qr == null || qr.isEmpty())
@@ -198,8 +214,15 @@ public class WorkingTread extends Thread {
 		pw.println("----명령어를 입력해 주세요.");
 		pw.flush();
 	}
-
+	
 	private void printLog(String msg) {
 		System.out.println("\tLOG: " + msg);
+	}
+	private void printLog(List<BranchInfo> biList) {
+		int i=0;
+		for(BranchInfo tmp:biList) {
+			printLog("biList[" +i+ "] = "+tmp.getBrName());
+			i++;
+		}
 	}
 }
