@@ -1,13 +1,16 @@
+import java.awt.Robot;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import informations.BranchInfo;
 import informations.BranchInfoRoot;
+import informations.QueryInfo;
 
 public class DBManager {
 	private final String JDBC_DRIVER = Settings.getJdbcDriver();
@@ -40,9 +43,9 @@ public class DBManager {
 					
 					rs = state.executeQuery(sql);
 					
-					while(rs.next()) {
-						root.addInfo(rs.getString(1), rs.getInt(2));
-					}
+					while(rs.next())
+						root.addInfo(rs.getString(1), rs.getInt(2), Integer.parseInt(s[0]));
+				
 					branchInfos.put(s[1], root);
 				}
 			}else
@@ -70,7 +73,7 @@ public class DBManager {
 			}
 	}
 	
-	public BranchInfo getBranchName(String th_name, String msg){
+	public BranchInfo getBranchName(String th_name, String msg){ // 영화관 이름이 존재하고 정확한 지점 이름이 들어올 때 매칭된 branchInfo를 리턴한다.
 		BranchInfoRoot root = branchInfos.get(th_name);
 		if(root == null)
 			return null;
@@ -81,8 +84,19 @@ public class DBManager {
 		return null;
 	}
 	
-	public List<String> getBranchTimeTable(){
+	public List<BranchInfo> getBranchNames(String msg){ // 특정 지역에 대한 String이 들어왔을 때 해당 지역에 해당하는 모든 branchInfo를 List형태로 리턴한다.
+		LinkedList<BranchInfo> rl = new LinkedList<>();
 		
+		for(String s: branchInfos.keySet())
+			for(BranchInfo bi: branchInfos.get(s).getList())
+				if(bi.getBrName().equals(msg))
+					rl.add(bi);
+		
+		return rl;			
+	}
+	
+	public List<String> getQueryResult(QueryInfo qi){ // 쿼리 info를 받아서 해당되는 쿼리를 수행 한 후 결과를 리턴한다. 해석할 수 없는경우 null을 리턴한다.
 		return null;
 	}
+	
 }

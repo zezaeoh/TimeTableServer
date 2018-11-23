@@ -11,8 +11,8 @@ public class BranchInfoRoot {
 		list = new LinkedList<>();
 	}
 	
-	public void addInfo(String brName, int brId) {
-		list.add(new BranchInfo(brName, brId));
+	public void addInfo(String brName, int brId, int thId) {
+		list.add(new BranchInfo(brName, brId, thId));
 	}
 
 	public String getThName() {
