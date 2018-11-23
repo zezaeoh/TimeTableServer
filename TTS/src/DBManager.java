@@ -90,7 +90,7 @@ public class DBManager {
 			for(BranchInfo bi: branchInfos.get(s).getList())
 				if(bi.getBrName().contains(msg))
 					rl.add(bi);
-		
+			
 		return rl;			
 	}
 	
