@@ -149,7 +149,10 @@ public class WorkingTread extends Thread {
 					if(Pattern.matches("^[0-9 시]*$", sMsg)) {
 						DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd ");
 						Date date = new Date();
-						time = dateFormat.format(date)+sMsg.replaceAll("[^0-9]", "")+":%";
+						time=sMsg.replaceAll("[^0-9]", "");
+						printLog(time);
+						if(time.length()==1)time="0"+time;
+						time = dateFormat.format(date)+time+":%";
 						printLog("Time.."+time);
 					}
 			}
