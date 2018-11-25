@@ -59,8 +59,9 @@ public class WorkingTread extends Thread {
 			try {
 				s = br.readLine();
 				System.out.println("Client: " + client.getId() + " enterd msg: " + s);
-				if (s == null || s.isEmpty())
+				if (s == null || s.isEmpty()) 
 					continue;
+				
 				if (s.equals("종료") || s.equals("접속종료"))
 					break;
 				else if (s.equals("동시접속자") || s.equals("동접자"))
@@ -132,10 +133,10 @@ public class WorkingTread extends Thread {
 					}
 		printLog("theater is checked.."+splitedMsg.toString());
 
-		//branch check
+		
 		outerloop:
 		for (String sMsg : splitedMsg)
-			if(qi.haveThId()) {
+			if(qi.haveThId()) {//branch check
 				if(qi.getThId()==100)sMsg = "CGV"+sMsg;
 				printLog(sMsg);
 				bi = db.getBranchName(thName, sMsg);
@@ -143,21 +144,24 @@ public class WorkingTread extends Thread {
 					qi.addThBrId(bi);
 					break outerloop;
 				}
-			}else {
+			}else {//time check
+				printLog("!haveThId() "+sMsg);
 				biList.addAll(db.getBranchNames(sMsg));
-				if(biList.size() != 0) 
-					if(Pattern.matches("^[0-9 시]*$", sMsg)) {
-						DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd ");
-						Date date = new Date();
-						time=sMsg.replaceAll("[^0-9]", "");
-						printLog(time);
-						if(time.length()==1)time="0"+time;
-						time = dateFormat.format(date)+time+":%";
-						printLog("Time.."+time);
-					}
+//				if(biList.size() != 0) 
+				if(Pattern.matches("^[0-9 시]*$", sMsg)) {
+					DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd ");
+					Date date = new Date();
+					time=sMsg.replaceAll("[^0-9]", "");
+					printLog(time);
+					if(time.length()==1)time="0"+time;
+					time = dateFormat.format(date)+time+":%";
+					printLog("Time.."+time);
+					qi.setMvTime(time);
+				}
 			}
 		qi.addAllThBrIds(biList);
-		qi.setMvTime(time);
+		
+		
 		
 		printLog(biList);
 		printLog("QueryInfo: "+qi.getCommand()+" "
@@ -182,7 +186,7 @@ public class WorkingTread extends Thread {
 		/*
 		 * Test command
 		 * 수원 롯시 시간표 알려줘
-		 * 수원 시간표 알려줘
+		 * 13시 수원 시간표 알려줘
 		 * 수원 13시 시간표 알려줘
 		 */
 		
