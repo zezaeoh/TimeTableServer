@@ -27,9 +27,7 @@ public class WorkingTread extends Thread {
 	private HashMap<String, LinkedList<String>> cm;
 	private HashMap<Integer, LinkedList<String>> tm;
 	private String[][] thId;
-	
-	
-	
+
 	public WorkingTread(Socket s, LinkedList<ClientInfo> users, DBManager db, CommandSet cs, TheaterSet ts) {
 		this.users = users;
 		this.db = db;
@@ -51,32 +49,51 @@ public class WorkingTread extends Thread {
 	@Override
 	public void run() {
 		String s = null;
+		int nullCheck = 0;
+		
 		System.out.println("Access: " + client.getCs().getInetAddress() + "@" + client.getId());
-		printMain();
-		while (true) {
-			pw.println(">> ");
+		
+		if (client.getId() == null || client.getId().isEmpty()) {
+			printLog("Suspicious user was expelled");
+			pw.println("아이디를 정확히 입력해 주세요!");
 			pw.flush();
-			try {
-				s = br.readLine();
-				System.out.println("Client: " + client.getId() + " enterd msg: " + s);
-				if (s == null || s.isEmpty()) 
-					continue;
-				
-				if (s.equals("종료") || s.equals("접속종료"))
-					break;
-				else if (s.equals("동시접속자") || s.equals("동접자"))
-					checkConcurrentUsers();
-				else {
-					if (!processMsg(s)) {// checking the command.
-						pw.println("이해하지 못하는 명령어 입니다!");
-						pw.flush();
+		} else {
+			printMain();
+			while (true) {
+				pw.println(">> ");
+				pw.flush();
+				try {
+					s = br.readLine();
+					System.out.println("Client: " + client.getId() + " enterd msg: " + s);
+					if(s == null) {
+						nullCheck++;
+						if(nullCheck >= 5) {
+							printLog("Suspicious user was expelled");
+							break;
+						}
+					} else {
+						nullCheck = 0;
 					}
+					if (s == null || s.isEmpty())
+						continue;
+
+					if (s.equals("종료") || s.equals("접속종료"))
+						break;
+					else if (s.equals("동시접속자") || s.equals("동접자"))
+						checkConcurrentUsers();
+					else {
+						if (!processMsg(s)) {// checking the command.
+							pw.println("이해하지 못하는 명령어 입니다!");
+							pw.flush();
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					break;
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				break;
 			}
 		}
+		
 		try {
 			synchronized (users) {
 				users.remove(client);
@@ -97,18 +114,17 @@ public class WorkingTread extends Thread {
 		String thName = null;
 		String time = null;
 		BranchInfo bi = null;
-		List<BranchInfo> biList =new LinkedList<>();
+		List<BranchInfo> biList = new LinkedList<>();
 		LinkedList<String> screeningScheduleLeaf = cm.get(command1);
 		LinkedList<String> splitedMsg = new LinkedList<>();
 		QueryInfo qi = new QueryInfo(); // 밑으로 내려가면서 조건을 체크하면서 점차 이 인스턴스를 채울 것
-		
-		//command split
+
+		// command split
 		for (String s : msg.split("\\s+"))
 			splitedMsg.add(s);
 		printLog(splitedMsg.toString());
-		//command check
-		outerloop:
-		for (String sMsg : splitedMsg)
+		// command check
+		outerloop: for (String sMsg : splitedMsg)
 			for (String ssleaf : screeningScheduleLeaf)
 				if (sMsg.equals(ssleaf)) {
 					printLog("Command is matched: " + sMsg + "=" + ssleaf);
@@ -116,92 +132,78 @@ public class WorkingTread extends Thread {
 					qi.setCommand(command1); // 명령어가 매치되었으므로 qi에 입력
 					break outerloop;
 				}
-		if(!qi.haveCommand()) // 위 loop를 지나서도 명령어를 매치하지 못했으면 false를 리턴
+		if (!qi.haveCommand()) // 위 loop를 지나서도 명령어를 매치하지 못했으면 false를 리턴
 			return false;
-		printLog("Command is checked.."+splitedMsg.toString());
-		//theater check
-		outerloop:
-		for (String sMsg : splitedMsg)
-			for (String[] id: thId)
-				for(String thIDString:tm.get(Integer.parseInt(id[0])))
-					if(sMsg.equals(thIDString)) {						
+		printLog("Command is checked.." + splitedMsg.toString());
+		// theater check
+		outerloop: for (String sMsg : splitedMsg)
+			for (String[] id : thId)
+				for (String thIDString : tm.get(Integer.parseInt(id[0])))
+					if (sMsg.equals(thIDString)) {
 						printLog("theater is matched: " + sMsg + "=" + thIDString);
 						thName = id[1];
 						splitedMsg.remove(sMsg);
 						qi.setThId(Integer.parseInt(id[0]));
 						break outerloop;
 					}
-		printLog("theater is checked.."+splitedMsg.toString());
+		printLog("theater is checked.." + splitedMsg.toString());
 
-		
-		outerloop:
-		for (String sMsg : splitedMsg)
-			if(qi.haveThId()) {//branch check
-				if(qi.getThId()==100)sMsg = "CGV"+sMsg;
+		outerloop: for (String sMsg : splitedMsg)
+			if (qi.haveThId()) {// branch check
+				if (qi.getThId() == 100)
+					sMsg = "CGV" + sMsg;
 				printLog(sMsg);
 				bi = db.getBranchName(thName, sMsg);
-				if(bi!=null) {
+				if (bi != null) {
 					qi.addThBrId(bi);
 					break outerloop;
 				}
-			}else {//time check
-				printLog("!haveThId() "+sMsg);
+			} else {// time check
+				printLog("!haveThId() " + sMsg);
 				biList.addAll(db.getBranchNames(sMsg));
 //				if(biList.size() != 0) 
-				if(Pattern.matches("^[0-9 시]*$", sMsg)) {
+				if (Pattern.matches("^[0-9 시]*$", sMsg)) {
 					DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd ");
 					Date date = new Date();
-					time=sMsg.replaceAll("[^0-9]", "");
+					time = sMsg.replaceAll("[^0-9]", "");
 					printLog(time);
-					if(time.length()==1)time="0"+time;
-					time = dateFormat.format(date)+time+":%";
-					printLog("Time.."+time);
+					if (time.length() == 1)
+						time = "0" + time;
+					time = dateFormat.format(date) + time + ":%";
+					printLog("Time.." + time);
 					qi.setMvTime(time);
 				}
 			}
 		qi.addAllThBrIds(biList);
-		
-		
-		
+
 		printLog(biList);
-		printLog("QueryInfo: "+qi.getCommand()+" "
-							  +Integer.toString(qi.getThId()) +" "
-							  +qi.getThBrIds()+ " "
-							  +qi.getMvTime());
-		
+		printLog("QueryInfo: " + qi.getCommand() + " " + Integer.toString(qi.getThId()) + " " + qi.getThBrIds() + " "
+				+ qi.getMvTime());
+
 		/*
-		 *  조건 매칭을 계속 해나가면서 위의 과정을 반복
-		 *  조건들: (영화관 이름 & 지점 이름) 또는 (지역 이름 & 영화 시간대) 
-		 *  
-		 *  조건 매칭에 사용할 수 있는 명령어들:
-		 *  1. db.getBranchName(thName, msg)
-		 *  	--> 영화관 이름이 찾아진 경우 해당 명령어를 이용하여 영화관 이름과 잘라진 msg들을 넘기면 해당되는 정확한 이름의
-		 *          지점이 존재하는 경우 BranchInfo를 리턴한다. 못찾는 경우에는 null을 리턴한다.
-		 *  2. db.getBranchNames(msg)
-		 *      --> 영화관 이름을 발견하지 못한 경우 지역정보를 확인하기 위해 모든 잘라진 msg들을 넘긴다.
-		 *          지역정보가 포함된 지점의 정보들을 모두 확인하여 BranchInfo의 리스트를 리턴한다.
-		 *          지점이 존해하지 않는 경우 empty한 리스트를 리턴한다.
+		 * 조건 매칭을 계속 해나가면서 위의 과정을 반복 조건들: (영화관 이름 & 지점 이름) 또는 (지역 이름 & 영화 시간대)
+		 * 
+		 * 조건 매칭에 사용할 수 있는 명령어들: 1. db.getBranchName(thName, msg) --> 영화관 이름이 찾아진 경우 해당
+		 * 명령어를 이용하여 영화관 이름과 잘라진 msg들을 넘기면 해당되는 정확한 이름의 지점이 존재하는 경우 BranchInfo를 리턴한다.
+		 * 못찾는 경우에는 null을 리턴한다. 2. db.getBranchNames(msg) --> 영화관 이름을 발견하지 못한 경우 지역정보를
+		 * 확인하기 위해 모든 잘라진 msg들을 넘긴다. 지역정보가 포함된 지점의 정보들을 모두 확인하여 BranchInfo의 리스트를 리턴한다.
+		 * 지점이 존해하지 않는 경우 empty한 리스트를 리턴한다.
 		 */
-		
+
 		/*
-		 * Test command
-		 * 수원 롯시 시간표 알려줘
-		 * 13시 수원 시간표 알려줘
-		 * 수원 13시 시간표 알려줘
+		 * Test command 수원 롯시 시간표 알려줘 13시 수원 시간표 알려줘 수원 13시 시간표 알려줘
 		 */
-		
-		
-		
+
 		List<String> qr = db.getQueryResult(qi); // 모든 조건이 체크된 qi를 이용하여 쿼리를 날림
-		if(qr == null || qr.isEmpty())
+		if (qr == null || qr.isEmpty())
 			return false;
-		
+
 		// 결과로 받은 String들을 client에게 전송
-		for(String ss : qr) {
+		for (String ss : qr) {
 			pw.println(ss);
 			pw.flush();
 		}
-		
+
 		return true;
 	}
 
@@ -221,14 +223,15 @@ public class WorkingTread extends Thread {
 		pw.println("----명령어를 입력해 주세요.");
 		pw.flush();
 	}
-	
+
 	private void printLog(String msg) {
 		System.out.println("\tLOG: " + msg);
 	}
+
 	private void printLog(List<BranchInfo> biList) {
-		int i=0;
-		for(BranchInfo tmp:biList) {
-			printLog("biList[" +i+ "] = "+tmp.getBrName());
+		int i = 0;
+		for (BranchInfo tmp : biList) {
+			printLog("biList[" + i + "] = " + tmp.getBrName());
 			i++;
 		}
 	}
